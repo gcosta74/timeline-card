@@ -62,7 +62,7 @@ Since the repository is not yet part of the official HACS store, you need to add
 `https://github.com/weedpump/timeline-card`
 
 **Category:**
-`Frontend`
+`Dashboard`
 
 After adding it, the card can be installed and updated normally via HACS.
 </details>
