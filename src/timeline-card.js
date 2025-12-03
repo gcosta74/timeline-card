@@ -3,7 +3,11 @@ import de from "./locales/de.json";
 import styles from "./timeline-card.css";
 
 import { TranslationEngine } from "./translation-engine.js";
-import { getIconForEntity, getIconColor } from "./icon-engine.js";
+import { relativeTime, formatAbsoluteTime } from "./time-engine.js";
+
+import { fetchHistory } from "./history-fetch.js";
+import { transformHistory } from "./history-transform.js";
+import { filterHistory } from "./history-filter.js";
 
 const translations = { en, de };
 
@@ -80,56 +84,6 @@ class TimelineCard extends HTMLElement {
   }
 
   // ------------------------------------
-  // CUSTOM CONFIG FETCH
-  // ------------------------------------
-  // Returns the per-entity configuration object for a given entity_id,
-  // or an empty object if none is found.
-  getCustomConfig(entity_id) {
-    return this.entities.find(e => e.entity === entity_id) || {};
-  }
-
-  // ------------------------------------
-  // NAME ENGINE
-  // ------------------------------------
-  // Resolve the display name for an entity:
-  //  1. YAML config name
-  //  2. HA friendly_name
-  //  3. raw entity_id
-  getEntityName(entity_id) {
-    const cfgEntry  = this.entities.find(e => e.entity === entity_id);
-    const liveState = this.hassInst?.states?.[entity_id];
-
-    return (
-      cfgEntry?.name ||
-      liveState?.attributes?.friendly_name ||
-      entity_id
-    );
-  }
-
-  // ------------------------------------
-  // RELATIVE TIME
-  // ------------------------------------
-  // Creates a localized relative timestamp like:
-  //  - "a few seconds ago"
-  //  - "5 minutes ago"
-  // Uses the "time.*" keys from the locale JSON.
-  relativeTime(date) {
-    const diff = (Date.now() - date.getTime()) / 1000;
-
-    if (diff < 60) return this.i18n.t("time.seconds");
-    if (diff < 3600) return this.i18n.t("time.minutes", { n: Math.floor(diff / 60) });
-    if (diff < 86400) return this.i18n.t("time.hours", { n: Math.floor(diff / 3600) });
-    return this.i18n.t("time.days", { n: Math.floor(diff / 86400) });
-  }
-
-  // Formats an absolute timestamp using the locale's "date_format.datetime"
-  // structure and the browser's Intl date formatting.
-  formatAbsoluteTime(date) {
-    const fmt = this.i18n.t("date_format.datetime");
-    return date.toLocaleString(this.languageCode, fmt);
-  }
-
-  // ------------------------------------
   // LOAD HISTORY
   // ------------------------------------
   // Fetches entity history from Home Assistant:
@@ -138,63 +92,9 @@ class TimelineCard extends HTMLElement {
   //  - Flattens history into a simple timeline array
   //  - Applies state localization, icon mapping, and filters
   async loadHistory() {
-    const end = new Date();
-    const start = new Date(end.getTime() - this.hours * 60 * 60 * 1000);
-
-    const startTime = start.toISOString();
-    const endTime   = end.toISOString();
-
-    // Comma separated list of entities for the API filter
-    const entityParam = this.entities.map((e) => e.entity).join(",");
-
-    const data = await this.hassInst.callApi(
-      "GET",
-      `history/period/${startTime}?filter_entity_id=${entityParam}&end_time=${endTime}`
-    );
-
-    let flat = [];
-
-    data.forEach((entityList) => {
-      entityList.forEach((entry) => {
-        const st        = this.hassInst.states[entry.entity_id];   // current live state (for device_class etc.)
-        const rawState  = entry.state;                             // raw state from history
-        const name      = this.getEntityName(entry.entity_id);
-        
-        const cfg = this.getCustomConfig(entry.entity_id);
-
-        const icon      = getIconForEntity(st, cfg, rawState);    // icon based on raw historical state
-        const color     = getIconColor(cfg, rawState);
-
-        const niceState = this.i18n.getLocalizedState(entry.entity_id, rawState, cfg); // translated / YAML-override label
-
-        flat.push({
-          id: entry.entity_id,
-          name: name,
-          icon: icon,
-          icon_color: color,
-          state: niceState,          // human readable (localized) label
-          raw_state: rawState,       // technical state used for filters and icon mapping
-          time: new Date(entry.last_changed),
-        });
-      });
-    });
-
-    // Remove HA's synthetic "range start" event which matches the start timestamp
-    flat = flat.filter((e) => e.time.getTime() !== start.getTime());
-
-    // Filter by include_states per entity if configured.
-    // This uses the raw_state so it stays independent of translations.
-    flat = flat.filter((ev) => {
-      const cfg = this.entities.find((e) => e.entity === ev.id);
-      const include = cfg?.include_states;
-
-      if (!include || !Array.isArray(include)) return true;
-      return include.includes(ev.raw_state);
-    });
-
-    // Sort by time (newest first) and apply global limit
-    this.items = flat.sort((a, b) => b.time - a.time).slice(0, this.limit);
-
+    const raw = await fetchHistory(this.hassInst, this.entities, this.hours);
+    const flat = transformHistory(raw, this.entities, this.hassInst.states, this.i18n);
+    this.items = filterHistory(flat, this.entities, this.limit);
     this.render();
   }
 
@@ -244,10 +144,10 @@ class TimelineCard extends HTMLElement {
                         }
                       </div>
                       <div class="time">
-                        ${ this.relativeTimeEnabled 
-                            ? this.relativeTime(item.time) 
-                            : this.formatAbsoluteTime(item.time)
-                          }
+                        ${ this.relativeTimeEnabled
+                            ? relativeTime(item.time, this.i18n)
+                            : formatAbsoluteTime(item.time, this.languageCode, this.i18n)
+                        }
                       </div>
                     </div>
                   </div>
@@ -279,10 +179,10 @@ class TimelineCard extends HTMLElement {
                         }
                       </div>
                       <div class="time">
-                        ${ this.relativeTimeEnabled 
-                            ? this.relativeTime(item.time) 
-                            : this.formatAbsoluteTime(item.time)
-                          }
+                        ${ this.relativeTimeEnabled
+                            ? relativeTime(item.time, this.i18n)
+                            : formatAbsoluteTime(item.time, this.languageCode, this.i18n)
+                        }
                       </div>
                     </div>
                   </div>
