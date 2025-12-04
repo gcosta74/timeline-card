@@ -182,13 +182,18 @@ class TimelineCard extends HTMLElement {
       },
       "state_changed"
     );
-
-    console.warn("TimelineCard WebSocket subscription active.");
   }
 
   processLiveEvent(data) {
     const entityId = data.entity_id;
     const newState = data.new_state;
+
+    // --- NEW: include_states filter for LIVE EVENTS ---
+    const cfg = this.entities.find(e => e.entity === entityId);
+    if (cfg?.include_states && !cfg.include_states.includes(newState.state)) {
+      return; // ignore this live event
+    }
+    // --------------------------------------------------
 
     const item = transformState(
       entityId,
