@@ -1,7 +1,0 @@
-type: custom:timeline-card
-title: Basic Example
-hours: 12
-limit: 8
-entities:
-  - entity: binary_sensor.frontdoor_contact
-  - entity: person.tobi
