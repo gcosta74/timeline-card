@@ -8,7 +8,7 @@ entities:
     icon_map:
       home: mdi:home
       not_home: mdi:account-arrow-right
-    status_map:
+    state_map:
       home: "at home"
       not_home: "away"
     icon_color_map:

@@ -35,6 +35,8 @@ class TimelineCard extends HTMLElement {
     this.showNames = config.show_names ?? true;
     this.showIcons = config.show_icons ?? true;
 
+    this.allowMultiline = config.allow_multiline ?? false;
+
     this.refreshInterval = config.refresh_interval || null;
     this.refreshTimer = null;
 
@@ -233,7 +235,7 @@ class TimelineCard extends HTMLElement {
               ${
                 side === "left"
                   ? `
-                  <div class="event-box">
+                  <div class="event-box ${this.allowMultiline ? "auto-multiline" : ""}">
                     ${
                       this.showIcons
                         ? `<ha-icon icon="${item.icon}" style="color:${item.icon_color};"></ha-icon>`
@@ -276,7 +278,7 @@ class TimelineCard extends HTMLElement {
               ${
                 side === "right"
                   ? `
-                  <div class="event-box">
+                  <div class="event-box ${this.allowMultiline ? "auto-multiline" : ""}">
                     ${
                       this.showIcons
                         ? `<ha-icon icon="${item.icon}" style="color:${item.icon_color};"></ha-icon>`

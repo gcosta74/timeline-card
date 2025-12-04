@@ -105,9 +105,6 @@ const GENERIC_STATES = {
 export function getIconColor(cfg, state) {
   if (cfg?.icon_color_map?.[state]) return cfg.icon_color_map[state];
   if (cfg?.icon_color) return cfg.icon_color;
-
-  // Default colors can get fancy later (heat=red, cold=blue, etc.)
-  return "white";
 }
 
 export function getIconForEntity(stateObj, cfg, forcedState) {

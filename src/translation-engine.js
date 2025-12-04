@@ -29,11 +29,11 @@ export class TranslationEngine {
     return node;
   }
 
-  // Applies YAML status_map → then locale → then fallback
+  // Applies YAML state_map → then locale → then fallback
   getLocalizedState(entity_id, state, cfg) {
     // YAML override
-    if (cfg?.status_map?.[state]) {
-      return cfg.status_map[state];
+    if (cfg?.state_map?.[state]) {
+      return cfg.state_map[state];
     }
 
     // JSON translation

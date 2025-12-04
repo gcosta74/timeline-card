@@ -12,7 +12,7 @@ ha-card {
   font-weight: 600;
   margin: 0 0 12px 0;
   padding-left: 4px;
-  color: white;
+  /* color: white; */
 }
 
 .wrapper {
@@ -99,12 +99,14 @@ ha-icon {
   min-width: 0;
   font-weight: 600;
   font-size: 13px;
-  color: white;
 }
 
 .state {
   white-space: nowrap;
-  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
   opacity: 0.6;
   font-size: 11px;
 }
@@ -112,7 +114,35 @@ ha-icon {
 .time {
   font-size: 11px;
   opacity: 0.75;
-  color: white;
+}
+
+/* AUTO MULTILINE MODE
+   Nur wenn allow_multiline: true gesetzt ist.
+   Bricht Name/State nur um, wenn nötig.
+*/
+.event-box.auto-multiline .row {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 4px;
+  row-gap: 0;
+}
+
+.event-box.auto-multiline .name,
+.event-box.auto-multiline .state {
+  white-space: normal;         /* erlaubt Zeilenumbruch */
+  overflow: hidden;            /* kein Overflow aus der Box */
+  text-overflow: ellipsis;     /* ... wenn selbst 1 Zeile zu lang */
+  max-width: 100%;
+}
+
+.event-box.auto-multiline .name,
+.event-box.auto-multiline .state {
+  flex-shrink: 1;
+}
+
+/* sorgt für etwas mehr "Luft" wenn Text mehrzeilig wird */
+.event-box.auto-multiline {
+  padding: 12px 14px;
 }
 
 .dot {

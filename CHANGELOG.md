@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.1
+- fixed styling in light mode
+- automatic multiline wrapping for long names/states via Card Option ```allow_multiline: true/false``` 
+- shortening overly long states
+
 ## v1.0.0
 
 ### Changes in this release:

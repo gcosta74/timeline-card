@@ -8,7 +8,7 @@
 [![hacs][hacs-default]][hacs-default-link] [![hacs][hacs-validate]][hacs-validate-link]
 
 <p align="center">
-  <img 
+  <img
     src="https://raw.githubusercontent.com/weedpump/timeline-card/main/docs/logo.png"
     alt="Timeline Card Logo"
     width="140"
@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <img 
+  <img
     src="https://raw.githubusercontent.com/weedpump/timeline-card/main/docs/card-preview.png"
     alt="Timeline Card Screenshot"
     style="border-radius:12px; box-shadow:0 4px 22px rgba(0,0,0,0.15);"
@@ -120,6 +120,7 @@ hours: 12
 limit: 8
 relative_time: true
 show_states: true
+allow_multiline: true
 entities:
   - entity: binary_sensor.frontdoor_contact
   - entity: person.tobi
@@ -127,18 +128,19 @@ entities:
 
 ### Card Options
 
-| Option             | Type    | Required | Default | Description                               |
-| ------------------ | ------- | -------- | ------- | ----------------------------------------- |
+| Option             | Type    | Required | Default | Description |
+| ------------------ | ------- | -------- | ------- | ----------- |
 | `entities`         | list    | yes      | —       | List of entities or entity config objects |
-| `hours`            | number  | yes      | —       | Number of hours of history to fetch       |
-| `limit`            | number  | yes      | —       | Max number of events displayed            |
-| `title`            | string  | no       | ""      | Card title                                |
-| `relative_time`    | boolean | no       | false   | Use relative ("5 minutes ago") time       |
-| `show_names`       | boolean | no       | true    | Show entity names                         |
-| `show_states`      | boolean | no       | true    | Show entity states                        |
-| `show_icons`       | boolean | no       | true    | Show entity icons                         |
-| `language`         | string  | no       | auto    | Language code (`en`, `de`, …)             |
+| `hours`            | number  | yes      | —       | Number of hours of history to fetch |
+| `limit`            | number  | yes      | —       | Max number of events displayed |
+| `title`            | string  | no       | ""      | Card title |
+| `relative_time`    | boolean | no       | false   | Use relative ("5 minutes ago") time |
+| `show_names`       | boolean | no       | true    | Show entity names |
+| `show_states`      | boolean | no       | true    | Show entity states |
+| `show_icons`       | boolean | no       | true    | Show entity icons |
+| `language`         | string  | no       | auto    | Language code (`en`, `de`, …) |
 | `refresh_interval` | number  | no       | —       | Auto-refresh interval in seconds (background refresh) |
+| `allow_multiline`  | boolean | no       | false   | Enables automatic multiline wrapping for long names/states |
 
 ### Auto-Refresh
 
@@ -188,7 +190,7 @@ entities:
       on: mdi:door-open
       off: mdi:door-closed
       default: mdi:door
-    status_map:
+    state_map:
       on: "opened"
       off: "closed"
     include_states:
@@ -198,14 +200,14 @@ entities:
 
 ### Entity Options
 
-| Option           | Type   | Description                                  |
-| ---------------- | ------ | -------------------------------------------- |
-| `name`           | string | Display name override                        |
-| `icon`           | string | Static icon                                  |
-| `icon_map`       | object | State → icon mapping                         |
-| `icon_color`     | string | Static color                                 |
-| `icon_color_map` | object | State → color mapping                        |
-| `status_map`     | object | State → label override                       |
+| Option           | Type   | Description |
+| ---------------- | ------ | ----------- |
+| `name`           | string | Display name override |
+| `icon`           | string | Static icon |
+| `icon_map`       | object | State → icon mapping |
+| `icon_color`     | string | Static color |
+| `icon_color_map` | object | State → color mapping |
+| `state_map`      | object | State → label override |
 | `include_states` | list   | Only include events with matching raw states |
 
 ---
@@ -225,7 +227,7 @@ entities:
     icon_map:
       home: mdi:home
       not_home: mdi:account-arrow-right
-    status_map:
+    state_map:
       home: "at home"
       not_home: "away"
 ```
