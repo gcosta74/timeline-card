@@ -1,0 +1,60 @@
+{
+  "time": {
+    "seconds": "há alguns segundos",
+    "minutes": "há {n} minutos",
+    "hours": "há {n} horas",
+    "days": "há {n} dias"
+  },
+  "status": {
+    "locked": "trancado",
+    "unlocked": "destrancado",
+    "open": "aberto",
+    "closed": "fechado",
+    "on": "ligado",
+    "off": "desligado",
+    "home": "em casa",
+    "not_home": "ausente",
+    "idle": "ocioso",
+    "running": "executando",
+    "paused": "pausado",
+    "stopped": "parado",
+    "pending": "pendente",
+    "unknown": "desconhecido",
+    "unavailable": "indisponível",
+    "detected": "detectado",
+    "clear": "limpo",
+    "online": "conectado",
+    "offline": "desconectado",
+    "playing": "reproduzindo",
+    "buffering": "carregando",
+    "standby": "em espera",
+    "cleaning": "limpando",
+    "returning": "retornando",
+    "docked": "na base",
+    "charging": "carregando",
+    "error": "erro",
+    "spot_cleaning": "limpeza pontual",
+    "edge_cleaning": "limpeza de bordas",
+    "mopping": "passando pano",
+    "locating": "localizando",
+    "moving": "em movimento",
+    "stuck": "preso",
+    "disarmed": "desarmado",
+    "armed_home": "armado em casa",
+    "armed_away": "armado ausente",
+    "armed_night": "armado noite",
+    "armed_custom_bypass": "armado personalizado",
+    "arming": "armando",
+    "disarming": "desarmando",
+    "triggered": "disparado"
+  },
+  "date_format": {
+    "datetime": {
+      "day": "2-digit",
+      "month": "2-digit",
+      "year": "numeric",
+      "hour": "2-digit",
+      "minute": "2-digit"
+    }
+  }
+}

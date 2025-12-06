@@ -1,6 +1,7 @@
 import en from "./locales/en.json";
 import de from "./locales/de.json";
 import fr from "./locales/fr.json";
+import ptBR from "./locales/pt-BR.json";
 import styles from "./timeline-card.css";
 
 import { TranslationEngine } from "./translation-engine.js";
@@ -15,7 +16,7 @@ import { getCachedHistory, setCachedHistory } from "./history-cache.js";
 // Unified state transformer for both history + live
 import { transformState } from "./state-transform.js";
 
-const translations = { en, de, fr };
+const translations = { en, de, fr, "pt-br": ptBR };
 
 class TimelineCard extends HTMLElement {
   setConfig(config) {

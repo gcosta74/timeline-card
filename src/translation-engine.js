@@ -1,15 +1,21 @@
 export class TranslationEngine {
   constructor(translations) {
     this.translations = translations; // { en: {...}, de: {...} }
-    this.langCode = "en";             // fallback
-    this.active = translations.en;    // active translation table
+    this.langCode = "en"; // fallback
+    this.active = translations.en; // active translation table
   }
 
   // Loads translation object based on a language like 'de-DE'
   async load(lang) {
-    const short = lang.toLowerCase().substring(0, 2);
-    this.langCode = short;
-    this.active = this.translations[short] || this.translations.en;
+    const key = lang.toLowerCase();
+    const short = key.substring(0, 2);
+
+    this.active =
+      this.translations[key] ||
+      this.translations[short] ||
+      this.translations["en"];
+
+    this.langCode = key;
   }
 
   // e.g. t("status.open", { n: 5 })
