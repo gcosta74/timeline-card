@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.2.0
+- Brazilian Portuguese translations added by **@Bsector**, Thanks!
+- Added support for collapsing consecutive duplicate events in history and live updates.
+
 ## v1.1.1
 - Fix: Add include_states filtering for live WebSocket events
 - Fix: Safe-check liveUnsub to avoid errors in HA editor mode
