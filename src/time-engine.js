@@ -18,5 +18,12 @@ export function relativeTime(date, i18n) {
 // structure and the browser's Intl date formatting.
 export function formatAbsoluteTime(date, langCode, i18n) {
   const fmt = i18n.t("date_format.datetime");
-  return date.toLocaleString(langCode, fmt);
+  const base = date.toLocaleString(langCode, fmt);
+  const suffix = i18n.t("date_format.time_suffix");
+  const suffixText =
+    typeof suffix === "string" && suffix !== "date_format.time_suffix"
+      ? suffix.trim()
+      : "";
+
+  return suffixText ? `${base} ${suffixText}` : base;
 }

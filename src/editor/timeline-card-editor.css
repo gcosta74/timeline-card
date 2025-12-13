@@ -1,0 +1,324 @@
+:host {
+  display: block;
+  box-sizing: border-box;
+  color: var(--primary-text-color, #fff);
+  font-family: Roboto, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+.tc-editor-root {
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* HEADER */
+
+.tc-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tc-header-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* SECTIONS */
+
+.tc-section {
+  margin-bottom: 20px;
+}
+
+.tc-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.tc-section-subtitle {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+/* CARD-LIKE BLOCKS */
+
+.tc-card-block {
+  border-radius: 8px;
+  border: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
+  background: var(--card-background-color, rgba(255, 255, 255, 0.03));
+  padding: 8px 10px;
+}
+
+/* MAIN BUTTON ROW (General settings Button) */
+
+.tc-row-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
+  background: var(--card-background-color, rgba(255, 255, 255, 0.03));
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+.tc-row-button:hover {
+  border-color: var(--primary-color, #03a9f4);
+}
+
+.tc-row-button-label {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.tc-row-button-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tc-row-button-sub {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* ENTITIES LIST */
+
+.tc-entities-list {
+  border-radius: 8px;
+  border: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
+  padding: 8px;
+}
+
+.tc-entities-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tc-entities-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tc-entity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 4px;
+  border-radius: 6px;
+}
+
+.tc-entity-row:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tc-entity-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tc-entity-name {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tc-entity-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* ADD ENTITY */
+
+.tc-add-entity {
+  display: flex;
+  margin-top: 8px;
+  gap: 6px;
+}
+
+.tc-add-entity input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
+  background: var(--card-background-color, rgba(255, 255, 255, 0.03));
+  color: inherit;
+  box-sizing: border-box;
+}
+
+.tc-btn-primary {
+  border-radius: 6px;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  background: var(--primary-color, #03a9f4);
+  color: var(--text-primary-color, #fff);
+  font: inherit;
+  font-size: 13px;
+}
+
+.tc-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.tc-btn-secondary {
+  border-radius: 6px;
+  border: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
+  padding: 6px 10px;
+  cursor: pointer;
+  background: var(--card-background-color, rgba(255, 255, 255, 0.03));
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+}
+
+/* FORM & SWITCHES */
+
+.tc-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tc-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 2px;
+}
+
+.tc-setting-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tc-setting-title {
+  font-size: 13px;
+}
+
+.tc-setting-description {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.tc-setting-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 2px;
+}
+
+.tc-color-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Color picker line */
+.tc-color-input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+/* PLACEHOLDER BLOCKS */
+
+.tc-placeholder {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.tc-placeholder strong {
+  font-weight: 600;
+}
+
+/* MUTED INFO TEXT */
+
+.tc-muted {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-top: 6px;
+}
+
+.tc-icon-button {
+  border: none;
+  background: none;
+  padding: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tc-icon-button ha-icon {
+  /* Keine Farbe setzen – Theme übernimmt alles */
+}
+
+.tc-map-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 240px;
+}
+
+.tc-map-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) minmax(200px, 280px) auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.tc-map-row-icon {
+  grid-template-columns: minmax(120px, 180px) minmax(200px, 280px) auto;
+}
+
+.tc-map-row-color {
+  grid-template-columns: minmax(120px, 180px) minmax(200px, 280px) auto;
+}
+
+.tc-map-key,
+.tc-map-value {
+  width: 100%;
+}
+
+.tc-map-icon {
+  width: 100%;
+}
+
+.tc-color-input {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
+  border-radius: 6px;
+  background: var(--card-background-color, rgba(255, 255, 255, 0.03));
+  cursor: pointer;
+}
+
+.tc-color-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tc-color-label {
+  font-size: 12px;
+  opacity: 0.8;
+}

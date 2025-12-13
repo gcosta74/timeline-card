@@ -31,9 +31,16 @@ function collapseDuplicates(list, entities, globalConfig) {
 export function filterHistory(items, entities, limit, globalConfig = {}) {
   let filtered = items.filter((ev) => {
     const cfg = entities.find((e) => e.entity === ev.id);
-    const include = cfg?.include_states;
-    if (!include || !Array.isArray(include)) return true;
-    return include.includes(ev.raw_state);
+    const include = Array.isArray(cfg?.include_states)
+      ? cfg.include_states
+      : null;
+    const exclude = Array.isArray(cfg?.exclude_states)
+      ? cfg.exclude_states
+      : null;
+
+    if (include) return include.includes(ev.raw_state);
+    if (exclude) return !exclude.includes(ev.raw_state);
+    return true;
   });
 
   // Sort (newest first)

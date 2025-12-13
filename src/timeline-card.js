@@ -1,8 +1,11 @@
-import en from "./locales/en.json";
+import enUS from "./locales/en-US.json";
+import enGB from "./locales/en-GB.json";
 import de from "./locales/de.json";
 import fr from "./locales/fr.json";
 import ptBR from "./locales/pt-BR.json";
 import styles from "./timeline-card.css";
+
+import "./editor/timeline-card-editor.js";
 
 import { TranslationEngine } from "./translation-engine.js";
 import { relativeTime, formatAbsoluteTime } from "./time-engine.js";
@@ -16,9 +19,38 @@ import { getCachedHistory, setCachedHistory } from "./history-cache.js";
 // Unified state transformer for both history + live
 import { transformState } from "./state-transform.js";
 
-const translations = { en, de, fr, "pt-br": ptBR };
+const translations = {
+  "en-us": enUS,
+  "en-gb": enGB,
+  de,
+  fr,
+  "pt-br": ptBR,
+};
 
 class TimelineCard extends HTMLElement {
+
+  static getConfigElement() {
+    return document.createElement("timeline-card-editor");
+  }
+
+  static getStubConfig(hass, entities) {
+    const firstEntityId = entities && Object.keys(entities).length
+      ? Object.keys(entities)[0]
+      : undefined;
+
+    return {
+      type: "custom:timeline-card",
+      title: "Timeline",
+      hours: 6,
+      limit: 10,
+      relative_time: true,
+      show_names: true,
+      show_states: true,
+      show_icons: true,
+      entities: firstEntityId ? [firstEntityId] : [],
+    };
+  }
+
   setConfig(config) {
     if (!config.entities || !Array.isArray(config.entities)) {
       throw new Error("Please define 'entities' as a list.");
@@ -34,6 +66,22 @@ class TimelineCard extends HTMLElement {
           }
     );
 
+    // Prevent conflicting filters on entity level
+    for (const ent of this.entities) {
+      const include = Array.isArray(ent.include_states)
+        ? ent.include_states
+        : [];
+      const exclude = Array.isArray(ent.exclude_states)
+        ? ent.exclude_states
+        : [];
+
+      if (include.length > 0 && exclude.length > 0) {
+        throw new Error(
+          `timeline-card: Entity "${ent.entity}" cannot use include_states and exclude_states simultaneously.`
+        );
+      }
+    }
+
     this.limit = config.limit;
     this.hours = config.hours;
     this.title = typeof config.title === "string" ? config.title : "";
@@ -44,10 +92,24 @@ class TimelineCard extends HTMLElement {
     this.showIcons = config.show_icons ?? true;
 
     this.allowMultiline = config.allow_multiline ?? false;
+    this.compactLayout = config.compact_layout ?? false;
 
     // NEW: global colors
     this.nameColor = config.name_color || null;
     this.stateColor = config.state_color || null;
+
+    // Overflow handling
+    const visibleRaw = config.visible_events;
+    const visibleParsed =
+      typeof visibleRaw === "string" ? parseInt(visibleRaw, 10) : visibleRaw;
+    this.visibleEventCount =
+      Number.isInteger(visibleParsed) && visibleParsed > 0
+        ? visibleParsed
+        : null;
+    const overflow = (config.overflow || "collapse").toLowerCase();
+    this.overflowMode = overflow === "scroll" ? "scroll" : "collapse";
+    this.maxHeight = config.max_height || null;
+    this.expanded = false;
 
     this.refreshInterval = config.refresh_interval || null;
     this.refreshTimer = null;
@@ -69,12 +131,13 @@ class TimelineCard extends HTMLElement {
       const haLang = hass?.locale?.language;
       const browserLang = navigator.language;
 
-      this.language = yamlLang || haLang || browserLang || "en";
+      this.language = yamlLang || haLang || browserLang || "en-US";
 
       this.i18n = new TranslationEngine(translations);
 
       this.i18n.load(this.language).then(() => {
-        this.languageCode = this.language.toLowerCase().substring(0, 2);
+        // Keep the full normalized language code so region-specific formats work.
+        this.languageCode = this.i18n.langCode || this.language.toLowerCase();
         this.loadHistory();
 
         if (this.refreshInterval && !this.refreshTimer) {
@@ -178,12 +241,23 @@ class TimelineCard extends HTMLElement {
     const entityId = data.entity_id;
     const newState = data.new_state;
 
-    // --- include_states filter for LIVE EVENTS ---
     const cfg = this.entities.find((e) => e.entity === entityId);
-    if (cfg?.include_states && !cfg.include_states.includes(newState.state)) {
-      return; // ignore this live event
+
+    // --- include/exclude filter for LIVE EVENTS ---
+    const include = Array.isArray(cfg?.include_states)
+      ? cfg.include_states
+      : null;
+    const exclude = Array.isArray(cfg?.exclude_states)
+      ? cfg.exclude_states
+      : null;
+
+    if (include && !include.includes(newState.state)) {
+      return; // ignore this live event (not in include list)
     }
-    // --------------------------------------------
+    if (exclude && exclude.includes(newState.state)) {
+      return; // ignore this live event (blocked by exclude list)
+    }
+    // ---------------------------------------------
 
     const item = transformState(
       entityId,
@@ -253,7 +327,30 @@ class TimelineCard extends HTMLElement {
       return;
     }
 
-    const rows = this.items
+    const overflowMode =
+      this.overflowMode === "scroll" ? "scroll" : "collapse";
+    const hasVisibleLimit =
+      overflowMode === "collapse" &&
+      Number.isInteger(this.visibleEventCount) &&
+      this.visibleEventCount > 0;
+    const visibleLimit = hasVisibleLimit ? this.visibleEventCount : null;
+
+    const shouldCollapse =
+      overflowMode === "collapse" &&
+      visibleLimit !== null &&
+      !this.expanded &&
+      this.items.length > visibleLimit;
+
+    const hiddenCount =
+      overflowMode === "collapse" && visibleLimit
+        ? Math.max(this.items.length - visibleLimit, 0)
+        : 0;
+
+    const renderedItems = shouldCollapse
+      ? this.items.slice(0, visibleLimit)
+      : this.items;
+
+    const rows = renderedItems
       .map((item, index) => {
         const side = index % 2 === 0 ? "left" : "right";
 
@@ -373,20 +470,61 @@ class TimelineCard extends HTMLElement {
       })
       .join("");
 
+    const containerStyles = [];
+    if (this.maxHeight) {
+      const value =
+        typeof this.maxHeight === "number"
+          ? `${this.maxHeight}px`
+          : `${this.maxHeight}`;
+      containerStyles.push(`max-height:${value};`);
+    }
+    if (overflowMode === "scroll" || containerStyles.length) {
+      containerStyles.push("overflow-y:auto;");
+    }
+    const containerStyle = containerStyles.join("");
+
+    const collapseToggle =
+      overflowMode === "collapse" && hiddenCount > 0
+        ? `
+          <div class="toggle-row">
+            <button class="toggle-button" type="button" id="tc-toggle-hidden" aria-expanded="${this.expanded}">
+              ${
+                this.expanded
+                  ? "Show less"
+                  : `Show ${hiddenCount} more`
+              }
+            </button>
+          </div>
+        `
+        : "";
+
     root.innerHTML = `
       <style>${styles}</style>
       <ha-card>
         ${this.title ? `<h1 class="card-title">${this.title}</h1>` : ""}
-        <div class="wrapper">
-          <div class="timeline-line"></div>
-          ${rows}
+        <div class="timeline-container ${
+          overflowMode === "scroll" ? "scrollable" : ""
+        }" style="${containerStyle}">
+          <div class="wrapper ${this.compactLayout ? "compact" : ""}">
+            <div class="timeline-line"></div>
+            ${rows}
+          </div>
         </div>
+        ${collapseToggle}
       </ha-card>
     `;
+
+    const toggleBtn = root.getElementById("tc-toggle-hidden");
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", () => {
+        this.expanded = !this.expanded;
+        this.render();
+      });
+    }
   }
 
   getCardSize() {
-    return this.limit || 3;
+    return this.visibleEventCount || this.limit || 3;
   }
 }
 

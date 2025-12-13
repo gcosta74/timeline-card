@@ -16,6 +16,7 @@ export function transformState(entityId, newState, hass, entities, i18n) {
 
   const cfg = getCustomConfig(entityId, entities);
   const rawState = newState.state;
+  const unit = newState.attributes?.unit_of_measurement;
 
   const name = getEntityName(entityId, entities, hass.states);
   const icon = getIconForEntity(hass.states[entityId], cfg, rawState);
@@ -26,13 +27,17 @@ export function transformState(entityId, newState, hass, entities, i18n) {
     rawState,
     cfg
   );
+  const stateWithUnit =
+    unit && typeof localizedState === "string"
+      ? `${localizedState} ${unit}`
+      : localizedState;
 
   return {
     id: entityId,
     name,
     icon,
     icon_color,
-    state: localizedState,
+    state: stateWithUnit,
     raw_state: rawState,
     time: new Date(newState.last_changed), // must be Date() for relative_time
 

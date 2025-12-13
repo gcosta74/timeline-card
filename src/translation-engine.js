@@ -1,8 +1,8 @@
 export class TranslationEngine {
   constructor(translations) {
-    this.translations = translations; // { en: {...}, de: {...} }
-    this.langCode = "en"; // fallback
-    this.active = translations.en; // active translation table
+    this.translations = translations; // { en-us: {...}, de: {...} }
+    this.langCode = "en-us"; // fallback
+    this.active = translations["en-us"]; // active translation table
   }
 
   // Loads translation object based on a language like 'de-DE'
@@ -13,7 +13,7 @@ export class TranslationEngine {
     this.active =
       this.translations[key] ||
       this.translations[short] ||
-      this.translations["en"];
+      this.translations["en-us"];
 
     this.langCode = key;
   }

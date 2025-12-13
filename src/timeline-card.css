@@ -15,9 +15,23 @@ ha-card {
   /* color: white; */
 }
 
+.timeline-container {
+  position: relative;
+  width: 100%;
+}
+
+.timeline-container.scrollable {
+  overflow-y: auto;
+}
+
 .wrapper {
   position: relative;
   width: 100%;
+}
+
+.wrapper.compact {
+  padding-top: 7px;
+  padding-bottom: 5px;
 }
 
 .timeline-line {
@@ -38,6 +52,14 @@ ha-card {
   align-items: center;
   position: relative;
   margin: 16px 0;
+}
+
+.wrapper.compact .timeline-row {
+  margin: 5px 0;
+}
+
+.wrapper.compact .timeline-row + .timeline-row {
+  margin-top: -22px;
 }
 
 .side {
@@ -71,6 +93,10 @@ ha-card {
   max-width: 100%;
   flex-shrink: 1;
   min-width: 0;
+}
+
+.wrapper.compact .event-box {
+  padding: 6px 9px;
 }
 
 ha-icon {
@@ -156,4 +182,32 @@ ha-icon {
   border-radius: 50%;
   box-shadow: 0 0 10px rgba(0, 150, 255, 0.8);
   z-index: 10;
+}
+
+.wrapper.compact .dot {
+  width: 8px;
+  height: 8px;
+  box-shadow: 0 0 6px rgba(0, 150, 255, 0.6);
+}
+
+.toggle-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.toggle-button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font: inherit;
+  padding: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.toggle-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
 }
