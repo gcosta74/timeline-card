@@ -37,10 +37,15 @@ class TimelineCardEditor extends LitElement {
       this._config.relative_time = false;
     if (this._config.allow_multiline === undefined)
       this._config.allow_multiline = false;
+    if (this._config.force_multiline === undefined)
+      this._config.force_multiline = false;
     if (this._config.collapse_duplicates === undefined)
       this._config.collapse_duplicates = false;
     if (this._config.compact_layout === undefined)
       this._config.compact_layout = false;
+    if (!["center", "left", "right"].includes(this._config.card_layout)) {
+      this._config.card_layout = "center";
+    }
     if (!["collapse", "scroll"].includes(this._config.overflow)) {
       this._config.overflow = "collapse";
     }

@@ -44,8 +44,9 @@
 3. [Configuration](#configuration)
    1. [Basic Example](#basic-example)
    2. [Card Options](#card-options)
-   3. [Auto-Refresh](#auto-refresh)
-   4. [Live Events (WebSocket)](#live-events-websocket)
+   3. [Overflow handling](#overflow-handling)
+   4. [Auto-Refresh](#auto-refresh)
+   5. [Live Events (WebSocket)](#live-events-websocket)
 4. [Per-Entity Configuration](#per-entity-configuration)
    1. [Example](#entity-example)
    2. [Entity Options](#entity-options)
@@ -61,7 +62,7 @@
 <a id="features"></a>
 ## ✨ Features
 
-* Alternating left/right timeline layout with a central gradient line
+* Alternating center layout plus optional left/right single-sided modes
 * Configurable history range (in hours)
 * Global limit for the number of events shown
 * Overflow handling: collapse extra entries or use a scrollable container
@@ -155,13 +156,15 @@ entities:
 | `language`            | string  | no       | auto     | Language code (default `en-US`; supports `en-US`, `en-GB`, `de`, `fr`, `pt-BR`, etc.) |
 | `refresh_interval`    | number  | no       | -        | Auto-refresh interval in seconds (background refresh) |
 | `allow_multiline`     | boolean | no       | false    | Enables automatic multiline wrapping for long names/states |
-| `compact_layout`      | boolean | no       | false    | Overlaps alternating rows to reduce vertical height |
+| `force_multiline`     | boolean | no       | false    | Always place the state on a new line below the name |
+| `card_layout`         | string  | no       | center   | Layout mode: `center` (alternating), `left` (timeline left, cards right), `right` (timeline right, cards left) |
+| `compact_layout`      | boolean | no       | false    | Overlaps alternating rows to reduce vertical height (only with `card_layout: center`) |
 | `name_color`          | string  | no       | -        | Global name color (overridden by entity) |
 | `state_color`         | string  | no       | -        | Global state color (overridden by entity) |
 | `collapse_duplicates` | boolean | no       | false    | Removes consecutive events with the same state across all entities. |
 
 <a id="overflow-handling"></a>
-#### Overflow handling
+### Overflow handling
 
 Use `visible_events` when you want to fetch more history than you can show in the available space. With the default `overflow: collapse`, extra entries are hidden behind a **Show more/less** toggle. If you prefer a scroll container, set `overflow: scroll` and add a `max_height`.
 

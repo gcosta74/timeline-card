@@ -27,6 +27,16 @@ ha-card {
 .wrapper {
   position: relative;
   width: 100%;
+  --tc-line-column: 46px;
+  --tc-line-offset: 50%;
+}
+
+.wrapper.layout-left {
+  --tc-line-offset: calc(var(--tc-line-column) / 2);
+}
+
+.wrapper.layout-right {
+  --tc-line-offset: calc(100% - (var(--tc-line-column) / 2));
 }
 
 .wrapper.compact {
@@ -36,7 +46,7 @@ ha-card {
 
 .timeline-line {
   position: absolute;
-  left: 50%;
+  left: var(--tc-line-offset);
   top: 0;
   bottom: 0;
   width: 3px;
@@ -62,6 +72,26 @@ ha-card {
   margin-top: -22px;
 }
 
+.wrapper.layout-left .timeline-row,
+.wrapper.layout-right .timeline-row {
+  display: grid;
+  align-items: center;
+  width: 100%;
+  column-gap: 16px;
+}
+
+.wrapper.layout-left .timeline-row {
+  grid-template-columns: var(--tc-line-column)
+    var(--tc-event-col-width, max-content);
+  justify-content: flex-start;
+}
+
+.wrapper.layout-right .timeline-row {
+  grid-template-columns: var(--tc-event-col-width, max-content)
+    var(--tc-line-column);
+  justify-content: flex-end;
+}
+
 .side {
   width: 47%;
   display: flex;
@@ -77,6 +107,30 @@ ha-card {
 .side.right {
   justify-content: flex-start;
   padding-left: 45px;
+}
+
+.wrapper.layout-left .side,
+.wrapper.layout-right .side {
+  width: 100%;
+  padding: 0;
+}
+
+.wrapper.layout-left .side.left,
+.wrapper.layout-right .side.right {
+  justify-content: center;
+}
+
+.wrapper.layout-left .side.right {
+  justify-content: flex-start;
+}
+
+.wrapper.layout-right .side.left {
+  justify-content: flex-end;
+}
+
+.wrapper.layout-left .event-box,
+.wrapper.layout-right .event-box {
+  width: 100%;
 }
 
 .event-box {
@@ -142,11 +196,12 @@ ha-icon {
   opacity: 0.75;
 }
 
-/* AUTO MULTILINE MODE
-   Nur wenn allow_multiline: true gesetzt ist.
-   Bricht Name/State nur um, wenn nötig.
+/* MULTILINE MODES
+   allow_multiline: Wraps when text would overflow.
+   force_multiline: Always places state below the name.
 */
-.event-box.auto-multiline .row {
+.event-box.auto-multiline .row,
+.event-box.force-multiline .row {
   display: flex;
   flex-wrap: wrap;
   column-gap: 4px;
@@ -154,26 +209,35 @@ ha-icon {
 }
 
 .event-box.auto-multiline .name,
-.event-box.auto-multiline .state {
-  white-space: normal;         /* erlaubt Zeilenumbruch */
-  overflow: hidden;            /* kein Overflow aus der Box */
-  text-overflow: ellipsis;     /* ... wenn selbst 1 Zeile zu lang */
+.event-box.auto-multiline .state,
+.event-box.force-multiline .name,
+.event-box.force-multiline .state {
+  white-space: nowrap;         /* no extra line breaks */
+  overflow: hidden;            /* keep content inside the box */
+  text-overflow: ellipsis;     /* ... for overlength */
   max-width: 100%;
-}
-
-.event-box.auto-multiline .name,
-.event-box.auto-multiline .state {
   flex-shrink: 1;
 }
 
-/* sorgt für etwas mehr "Luft" wenn Text mehrzeilig wird */
-.event-box.auto-multiline {
+.event-box.auto-multiline .time,
+.event-box.force-multiline .time {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-box.force-multiline .state {
+  flex-basis: 100%;            /* always its own line */
+}
+
+/* adds a bit more breathing room when text wraps */
+.event-box.force-multiline {
   padding: 12px 14px;
 }
 
 .dot {
   position: absolute;
-  left: 50%;
+  left: var(--tc-line-offset);
   top: 50%;
   transform: translate(-50%, -50%);
   width: 12px;

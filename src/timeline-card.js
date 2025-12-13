@@ -92,7 +92,18 @@ class TimelineCard extends HTMLElement {
     this.showIcons = config.show_icons ?? true;
 
     this.allowMultiline = config.allow_multiline ?? false;
+    this.forceMultiline = config.force_multiline ?? false;
     this.compactLayout = config.compact_layout ?? false;
+    const layout = (config.card_layout || "center").toLowerCase();
+    this.cardLayout = ["center", "left", "right"].includes(layout)
+      ? layout
+      : "center";
+
+    if (this.compactLayout && this.cardLayout !== "center") {
+      throw new Error(
+        "timeline-card: compact_layout is only supported with card_layout: center."
+      );
+    }
 
     // NEW: global colors
     this.nameColor = config.name_color || null;
@@ -113,6 +124,9 @@ class TimelineCard extends HTMLElement {
 
     this.refreshInterval = config.refresh_interval || null;
     this.refreshTimer = null;
+    this.singleSideWidth = null;
+    this.singleSideLayout = null;
+    this.singleSideSignature = null;
 
     this.liveUnsub = null;
 
@@ -182,7 +196,7 @@ class TimelineCard extends HTMLElement {
       flat,
       this.entities,
       this.limit,
-      this.config // enthält collapse_duplicates
+      this.config // includes collapse_duplicates
     );
 
     setCachedHistory(this.entities, this.hours, this.languageCode, items);
@@ -205,7 +219,7 @@ class TimelineCard extends HTMLElement {
       flat,
       this.entities,
       this.limit,
-      this.config // enthält collapse_duplicates
+      this.config // includes collapse_duplicates
     );
 
     if (JSON.stringify(items) === JSON.stringify(this.items)) return;
@@ -346,13 +360,36 @@ class TimelineCard extends HTMLElement {
         ? Math.max(this.items.length - visibleLimit, 0)
         : 0;
 
+    const eventBoxClassName = [
+      "event-box",
+      this.allowMultiline ? "auto-multiline" : "",
+      this.forceMultiline ? "force-multiline" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+
     const renderedItems = shouldCollapse
       ? this.items.slice(0, visibleLimit)
       : this.items;
 
+    const layout =
+      ["center", "left", "right"].includes(this.cardLayout) &&
+      this.cardLayout
+        ? this.cardLayout
+        : "center";
+    const compactClass =
+      this.compactLayout && layout === "center" ? "compact" : "";
+
     const rows = renderedItems
       .map((item, index) => {
-        const side = index % 2 === 0 ? "left" : "right";
+        const side =
+          layout === "center"
+            ? index % 2 === 0
+              ? "left"
+              : "right"
+            : layout === "left"
+              ? "right"
+              : "left";
 
         const entityCfg = item.entityCfg || {};
 
@@ -360,110 +397,59 @@ class TimelineCard extends HTMLElement {
         const nameColor = entityCfg.name_color || this.nameColor || "";
         const stateColor = entityCfg.state_color || this.stateColor || "";
 
+        const renderEventBox = () => `
+          <div class="${eventBoxClassName}">
+            ${
+              this.showIcons
+                ? `<ha-icon icon="${item.icon}" style="color:${item.icon_color};"></ha-icon>`
+                : ``
+            }
+            <div class="text">
+              <div class="row">
+                ${
+                  this.showNames
+                    ? `<div class="primary-text name" style="${
+                        nameColor ? `color:${nameColor};` : ""
+                      }">${item.name}</div>`
+                    : ``
+                }
+                ${
+                  this.showStates
+                    ? this.showNames
+                      ? `<div class="secondary-text state" style="${
+                          stateColor ? `color:${stateColor};` : ""
+                        }">(${item.state})</div>`
+                      : `<div class="primary-text state" style="${
+                          stateColor ? `color:${stateColor};` : ""
+                        }">${this.capitalize(item.state)}</div>`
+                    : ``
+                }
+              </div>
+              <div class="time">
+                ${
+                  this.relativeTimeEnabled
+                    ? relativeTime(item.time, this.i18n)
+                    : formatAbsoluteTime(
+                        item.time,
+                        this.languageCode,
+                        this.i18n
+                      )
+                }
+              </div>
+            </div>
+          </div>
+        `;
+
         return `
           <div class="timeline-row">
             <div class="side left">
-              ${
-                side === "left"
-                  ? `
-                  <div class="event-box ${
-                    this.allowMultiline ? "auto-multiline" : ""
-                  }">
-                    ${
-                      this.showIcons
-                        ? `<ha-icon icon="${item.icon}" style="color:${item.icon_color};"></ha-icon>`
-                        : ``
-                    }
-                    <div class="text">
-                      <div class="row">
-                        ${
-                          this.showNames
-                            ? `<div class="primary-text" style="${
-                                nameColor ? `color:${nameColor};` : ""
-                              }">${item.name}</div>`
-                            : ``
-                        }
-                        ${
-                          this.showStates
-                            ? this.showNames
-                              ? `<div class="secondary-text" style="${
-                                  stateColor ? `color:${stateColor};` : ""
-                                }">(${item.state})</div>`
-                              : `<div class="primary-text" style="${
-                                  stateColor ? `color:${stateColor};` : ""
-                                }">${this.capitalize(item.state)}</div>`
-                            : ``
-                        }
-                      </div>
-                      <div class="time">
-                        ${
-                          this.relativeTimeEnabled
-                            ? relativeTime(item.time, this.i18n)
-                            : formatAbsoluteTime(
-                                item.time,
-                                this.languageCode,
-                                this.i18n
-                              )
-                        }
-                      </div>
-                    </div>
-                  </div>
-                `
-                  : ""
-              }
+              ${side === "left" ? renderEventBox() : ""}
             </div>
 
             <div class="dot"></div>
 
             <div class="side right">
-              ${
-                side === "right"
-                  ? `
-                  <div class="event-box ${
-                    this.allowMultiline ? "auto-multiline" : ""
-                  }">
-                    ${
-                      this.showIcons
-                        ? `<ha-icon icon="${item.icon}" style="color:${item.icon_color};"></ha-icon>`
-                        : ``
-                    }
-                    <div class="text">
-                      <div class="row">
-                        ${
-                          this.showNames
-                            ? `<div class="primary-text" style="${
-                                nameColor ? `color:${nameColor};` : ""
-                              }">${item.name}</div>`
-                            : ``
-                        }
-                        ${
-                          this.showStates
-                            ? this.showNames
-                              ? `<div class="secondary-text" style="${
-                                  stateColor ? `color:${stateColor};` : ""
-                                }">(${item.state})</div>`
-                              : `<div class="primary-text" style="${
-                                  stateColor ? `color:${stateColor};` : ""
-                                }">${this.capitalize(item.state)}</div>`
-                            : ``
-                        }
-                      </div>
-                      <div class="time">
-                        ${
-                          this.relativeTimeEnabled
-                            ? relativeTime(item.time, this.i18n)
-                            : formatAbsoluteTime(
-                                item.time,
-                                this.languageCode,
-                                this.i18n
-                              )
-                        }
-                      </div>
-                    </div>
-                  </div>
-                `
-                  : ""
-              }
+              ${side === "right" ? renderEventBox() : ""}
             </div>
           </div>
         `;
@@ -505,7 +491,7 @@ class TimelineCard extends HTMLElement {
         <div class="timeline-container ${
           overflowMode === "scroll" ? "scrollable" : ""
         }" style="${containerStyle}">
-          <div class="wrapper ${this.compactLayout ? "compact" : ""}">
+          <div class="wrapper ${compactClass} layout-${layout}">
             <div class="timeline-line"></div>
             ${rows}
           </div>
@@ -521,10 +507,85 @@ class TimelineCard extends HTMLElement {
         this.render();
       });
     }
+
+    // Ensure single-sided layouts share the same card width (widest card)
+    this.applySingleSideWidth(root, layout);
   }
 
   getCardSize() {
     return this.visibleEventCount || this.limit || 3;
+  }
+
+  applySingleSideWidth(root, layout) {
+    if (layout === "center") {
+      this.singleSideWidth = null;
+      this.singleSideLayout = null;
+      this.singleSideSignature = null;
+      return;
+    }
+
+    const wrapper = root.querySelector(".wrapper");
+    if (!wrapper) return;
+
+    const measure = () => {
+      const signature = `${layout}-${this.allowMultiline}-${this.forceMultiline}`;
+      if (this.singleSideSignature !== signature) {
+        wrapper.style.removeProperty("--tc-event-col-width");
+        this.singleSideWidth = null;
+        this.singleSideLayout = layout;
+        this.singleSideSignature = signature;
+      }
+
+      const boxes = Array.from(wrapper.querySelectorAll(".event-box"));
+      if (!boxes.length) return;
+
+      const wrapperRect = wrapper.getBoundingClientRect();
+      const lineColRaw = getComputedStyle(wrapper).getPropertyValue(
+        "--tc-line-column"
+      );
+      const lineCol = parseFloat(lineColRaw) || 0;
+      const gap = 16; // column-gap defined in CSS
+      const maxAvailable = Math.max(wrapperRect.width - lineCol - gap, 0);
+
+      const max = boxes.reduce((acc, box) => {
+        const isForce = box.classList.contains("force-multiline");
+
+        const prevWidthBox = box.style.width;
+        const prevMaxWidth = box.style.maxWidth;
+        box.style.width = isForce ? "min-content" : "max-content";
+        box.style.maxWidth = "none";
+
+        const natural = Math.ceil(box.scrollWidth + 8); // small buffer for font/layout shifts
+
+        box.style.width = prevWidthBox;
+        box.style.maxWidth = prevMaxWidth;
+
+        return Math.max(acc, natural);
+      }, 0);
+
+      if (max > 0) {
+        const clamped = Math.min(max, maxAvailable);
+        const target = Math.min(maxAvailable, clamped);
+
+        this.singleSideWidth = target;
+        this.singleSideLayout = layout;
+        wrapper.style.setProperty("--tc-event-col-width", `${target}px`);
+      } else {
+        this.singleSideWidth = null;
+        wrapper.style.removeProperty("--tc-event-col-width");
+      }
+    };
+
+    const schedule = () => {
+      requestAnimationFrame(measure);
+      setTimeout(() => requestAnimationFrame(measure), 120);
+    };
+
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(schedule);
+    } else {
+      schedule();
+    }
   }
 }
 

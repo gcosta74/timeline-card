@@ -11,16 +11,17 @@ class TimelineCardGeneralSettings extends LitElement {
   render() {
     if (!this.config) return html``;
     const cfg = this.config;
+    const overflowMode = (cfg.overflow || "collapse").toLowerCase();
+    const isCollapseMode = overflowMode === "collapse";
+    const isScrollMode = overflowMode === "scroll";
 
     return html`
       <style>${editorStyles}</style>
       <div class="tc-editor-root">
-        <!-- SECTION: Card options -->
+        <!-- SECTION: General -->
         <div class="tc-section">
-          <h3 class="tc-section-title">Card options</h3>
-          <div class="tc-section-subtitle">
-            Basic settings for range, limits and language.
-          </div>
+          <h3 class="tc-section-title">General</h3>
+          <div class="tc-section-subtitle">Title, language and refresh.</div>
 
           <div class="tc-card-block">
             <div class="tc-form-group">
@@ -39,12 +40,63 @@ class TimelineCardGeneralSettings extends LitElement {
                 ></ha-textfield>
               </div>
 
+              <!-- LANGUAGE -->
+              <div class="tc-setting-row">
+                <div class="tc-setting-label">
+                  <div class="tc-setting-title">Language</div>
+                  <div class="tc-setting-description">
+                    Optional override. Empty = auto from HA/browser.
+                  </div>
+                </div>
+                <ha-select
+                  style="min-width: 200px; width: 240px;"
+                  .value=${cfg.language || ""}
+                  @selected=${(e) => this._onSelectChange("language", e)}
+                  @closed=${(e) => e.stopPropagation()}
+                >
+                  <mwc-list-item value="">Auto</mwc-list-item>
+                  <mwc-list-item value="en-US">English (US)</mwc-list-item>
+                  <mwc-list-item value="en-GB">English (UK)</mwc-list-item>
+                  <mwc-list-item value="de">Deutsch</mwc-list-item>
+                  <mwc-list-item value="fr">Francais</mwc-list-item>
+                  <mwc-list-item value="pt-br">Portugues (BR)</mwc-list-item>
+                </ha-select>
+              </div>
+
+              <!-- REFRESH INTERVAL -->
+              <div class="tc-setting-row">
+                <div class="tc-setting-label">
+                  <div class="tc-setting-title">Refresh interval (s)</div>
+                  <div class="tc-setting-description">
+                    Optional auto-refresh interval in seconds.
+                  </div>
+                </div>
+                <ha-textfield
+                  type="number"
+                  min="1"
+                  style="width: 140px;"
+                  .value=${cfg.refresh_interval ?? ""}
+                  @input=${(e) =>
+                    this._onNumberChange("refresh_interval", e.target.value)}
+                ></ha-textfield>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: Range & data -->
+        <div class="tc-section">
+          <h3 class="tc-section-title">Range & data</h3>
+          <div class="tc-section-subtitle">How much history is loaded.</div>
+
+          <div class="tc-card-block">
+            <div class="tc-form-group">
               <!-- HOURS -->
               <div class="tc-setting-row">
                 <div class="tc-setting-label">
                   <div class="tc-setting-title">Hours</div>
                   <div class="tc-setting-description">
-                    Number of hours of history to fetch (integer).
+                    Number of hours of history to fetch.
                   </div>
                 </div>
                 <ha-textfield
@@ -61,7 +113,7 @@ class TimelineCardGeneralSettings extends LitElement {
                 <div class="tc-setting-label">
                   <div class="tc-setting-title">Limit</div>
                   <div class="tc-setting-description">
-                    Max number of events to display (integer).
+                    Max number of events to display.
                   </div>
                 </div>
                 <ha-textfield
@@ -72,31 +124,50 @@ class TimelineCardGeneralSettings extends LitElement {
                   @input=${(e) => this._onNumberChange("limit", e.target.value)}
                 ></ha-textfield>
               </div>
+            </div>
+          </div>
+        </div>
 
-              <!-- VISIBLE EVENTS -->
-              <div class="tc-setting-row">
-                <div class="tc-setting-label">
-                  <div class="tc-setting-title">Visible events</div>
-                  <div class="tc-setting-description">
-                    Number of events shown before collapsing (optional).
-                  </div>
-                </div>
-                <ha-textfield
-                  type="number"
-                  min="1"
-                  style="width: 140px;"
-                  .value=${cfg.visible_events ?? ""}
-                  @input=${(e) =>
-                    this._onNumberChange("visible_events", e.target.value)}
-                ></ha-textfield>
-              </div>
+        <!-- SECTION: Event display -->
+        <div class="tc-section">
+          <h3 class="tc-section-title">Event display</h3>
+          <div class="tc-section-subtitle">
+            Collapsing vs. scroll and how many events to show.
+          </div>
+
+          <div class="tc-card-block">
+            <div class="tc-form-group">
+              <!-- VISIBLE EVENTS (collapse only) -->
+              ${isCollapseMode
+                ? html`
+                    <div class="tc-setting-row">
+                      <div class="tc-setting-label">
+                        <div class="tc-setting-title">Visible events</div>
+                        <div class="tc-setting-description">
+                          Show this many before "Show more".
+                        </div>
+                      </div>
+                      <ha-textfield
+                        type="number"
+                        min="1"
+                        style="width: 140px;"
+                        .value=${cfg.visible_events ?? ""}
+                        @input=${(e) =>
+                          this._onNumberChange(
+                            "visible_events",
+                            e.target.value
+                          )}
+                      ></ha-textfield>
+                    </div>
+                  `
+                : ""}
 
               <!-- OVERFLOW MODE -->
               <div class="tc-setting-row">
                 <div class="tc-setting-label">
                   <div class="tc-setting-title">Overflow mode</div>
                   <div class="tc-setting-description">
-                    Collapse extra events or use a scroll container.
+                    Collapse extra events or render inside a scroll area.
                   </div>
                 </div>
                 <ha-select
@@ -110,71 +181,67 @@ class TimelineCardGeneralSettings extends LitElement {
                 </ha-select>
               </div>
 
-              <!-- MAX HEIGHT -->
-              <div class="tc-setting-row">
-                <div class="tc-setting-label">
-                  <div class="tc-setting-title">Max height</div>
-                  <div class="tc-setting-description">
-                    Limit card height (e.g. 220px or 14rem). Useful with scroll mode.
-                  </div>
-                </div>
-                <ha-textfield
-                  style="width: 180px;"
-                  .value=${cfg.max_height ?? ""}
-                  @input=${(e) =>
-                    this._onTextChange("max_height", e.target.value)}
-                ></ha-textfield>
-              </div>
-
-              <!-- REFRESH INTERVAL -->
-              <div class="tc-setting-row">
-                <div class="tc-setting-label">
-                  <div class="tc-setting-title">Refresh interval (s)</div>
-                  <div class="tc-setting-description">
-                    Background auto-refresh in seconds (integer).
-                  </div>
-                </div>
-                <ha-textfield
-                  type="number"
-                  min="1"
-                  style="width: 140px;"
-                  .value=${cfg.refresh_interval ?? ""}
-                  @input=${(e) =>
-                    this._onNumberChange("refresh_interval", e.target.value)}
-                ></ha-textfield>
-              </div>
-
-              <!-- LANGUAGE -->
-              <div class="tc-setting-row">
-                <div class="tc-setting-label">
-                  <div class="tc-setting-title">Language</div>
-                  <div class="tc-setting-description">
-                    Use card language (empty = auto from HA/browser).
-                  </div>
-                </div>
-                <ha-select
-                  style="min-width: 200px; width: 240px;"
-                  .value=${cfg.language || ""}
-                  @selected=${(e) => this._onSelectChange("language", e)}
-                  @closed=${(e) => e.stopPropagation()}
-                >
-                  <mwc-list-item value="">Auto</mwc-list-item>
-                  <mwc-list-item value="en-US">English (US)</mwc-list-item>
-                  <mwc-list-item value="en-GB">English (UK)</mwc-list-item>
-                  <mwc-list-item value="de">Deutsch</mwc-list-item>
-                  <mwc-list-item value="fr">Français</mwc-list-item>
-                  <mwc-list-item value="pt-br">Português (BR)</mwc-list-item>
-                </ha-select>
-              </div>
+              <!-- MAX HEIGHT (scroll only) -->
+              ${isScrollMode
+                ? html`
+                    <div class="tc-setting-row">
+                      <div class="tc-setting-label">
+                        <div class="tc-setting-title">Max height</div>
+                        <div class="tc-setting-description">
+                          Limit card height (e.g. 220px or 14rem).
+                        </div>
+                      </div>
+                      <ha-textfield
+                        style="width: 180px;"
+                        .value=${cfg.max_height ?? ""}
+                        @input=${(e) =>
+                          this._onTextChange("max_height", e.target.value)}
+                      ></ha-textfield>
+                    </div>
+                  `
+                : ""}
             </div>
           </div>
         </div>
 
-        <!-- SECTION: Display options -->
+        <!-- SECTION: Layout -->
         <div class="tc-section">
-          <h3 class="tc-section-title">Display options</h3>
+          <h3 class="tc-section-title">Layout</h3>
           <div class="tc-section-subtitle">
-            Visual toggles for names, states, icons and formatting.
+            Where the timeline line and cards appear.
+          </div>
+
+          <div class="tc-card-block">
+            <div class="tc-form-group">
+              <div class="tc-setting-row">
+                <div class="tc-setting-label">
+                  <div class="tc-setting-title">Card layout</div>
+                  <div class="tc-setting-description">
+                    Switch between centered (alternating) and single-sided layouts.
+                  </div>
+                </div>
+                <ha-select
+                  style="min-width: 200px; width: 240px;"
+                  .value=${cfg.card_layout || "center"}
+                  @selected=${(e) => this._onSelectChange("card_layout", e)}
+                  @closed=${(e) => e.stopPropagation()}
+                >
+                  <mwc-list-item value="center">Center (alternating)</mwc-list-item>
+                  <mwc-list-item value="left">Left line, cards right</mwc-list-item>
+                  <mwc-list-item value="right">Right line, cards left</mwc-list-item>
+                </ha-select>
+              </div>
+
+              ${this._compactRow(cfg)}
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: Content -->
+        <div class="tc-section">
+          <h3 class="tc-section-title">Content</h3>
+          <div class="tc-section-subtitle">
+            What is shown for each event.
           </div>
 
           <div class="tc-card-block">
@@ -203,6 +270,19 @@ class TimelineCardGeneralSettings extends LitElement {
                 "relative_time",
                 cfg.relative_time ?? false
               )}
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: Text formatting -->
+        <div class="tc-section">
+          <h3 class="tc-section-title">Text formatting</h3>
+          <div class="tc-section-subtitle">
+            Control wrapping of names and states.
+          </div>
+
+          <div class="tc-card-block">
+            <div class="tc-form-group">
               ${this._booleanRow(
                 "Allow multiline",
                 "Allow names and states to wrap across multiple lines.",
@@ -210,11 +290,24 @@ class TimelineCardGeneralSettings extends LitElement {
                 cfg.allow_multiline ?? false
               )}
               ${this._booleanRow(
-                "Compact layout",
-                "Overlap rows to reduce the vertical height of the timeline.",
-                "compact_layout",
-                cfg.compact_layout ?? false
+                "Force multiline",
+                "Always place the state on a new line under the name.",
+                "force_multiline",
+                cfg.force_multiline ?? false
               )}
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: Duplicates -->
+        <div class="tc-section">
+          <h3 class="tc-section-title">Duplicates & filters</h3>
+          <div class="tc-section-subtitle">
+            Collapse repeating states globally.
+          </div>
+
+          <div class="tc-card-block">
+            <div class="tc-form-group">
               ${this._booleanRow(
                 "Collapse duplicates",
                 "Hide consecutive events with the same state.",
@@ -254,7 +347,7 @@ class TimelineCardGeneralSettings extends LitElement {
     `;
   }
 
-  _booleanRow(title, description, key, value) {
+  _booleanRow(title, description, key, value, disabled = false) {
     return html`
       <div class="tc-setting-row">
         <div class="tc-setting-label">
@@ -267,6 +360,7 @@ class TimelineCardGeneralSettings extends LitElement {
         </div>
         <ha-switch
           .checked=${value}
+          ?disabled=${disabled}
           @change=${(e) => this._onToggle(key, e)}
         ></ha-switch>
       </div>
@@ -342,7 +436,29 @@ class TimelineCardGeneralSettings extends LitElement {
 
   _onSelectChange(key, ev) {
     const val = ev.target?.value ?? "";
-    this._emitPatch({ [key]: val || undefined });
+    const patch = { [key]: val || undefined };
+
+    // If layout switches away from center, turn off compact to avoid invalid combo
+    if (key === "card_layout" && val && val !== "center") {
+      patch.compact_layout = false;
+    }
+
+    this._emitPatch(patch);
+  }
+
+  _compactRow(cfg) {
+    const layout = cfg.card_layout || "center";
+    const disabled = layout !== "center";
+    const desc = disabled
+      ? "Center layout required."
+      : "Overlap rows to reduce the vertical height of the timeline.";
+    return this._booleanRow(
+      "Compact layout",
+      desc,
+      "compact_layout",
+      cfg.compact_layout ?? false,
+      disabled
+    );
   }
 
   _emitPatch(patch) {

@@ -1,18 +1,22 @@
 # Changelog
 
+## v1.4.0
+- Added card option ``force_multiline`` to always place the state below the name.
+- Added `card_layout` with `center` (default), `left`, and `right` single-sided timeline layouts using consistent card widths.
+- UI editor: reorganized card settings sections and now only show relevant options (visible events for collapse, max height for scroll) with clearer compact layout hint.
+
 ## v1.3.1
 - Added missing translations for the collapse button.
 
 ## v1.3.0
 
-### 🎉 The Card is now fully configurable via the Home Assistant UI editor.
+### 🎉 The Card is now fully configurable via the Home Assistant UI editor
 
 ### Changes in this release:
 - New overflow handling: show only the first N events, collapse the rest behind a toggle or switch to a scrollable container.
 - Added compact layout option to reduce vertical spacing.
 - Added en-US and en-GB locale files and improved German time suffixes.
 - Entity filtering extended with `exclude_states`; states can now show `attributes.unit_of_measurement` suffixes.
-- Added per-entity maps/colors and global color options for names/states.
 - Docs: new browser_mod v2 popup example and refreshed README.
 
 ## v1.2.0

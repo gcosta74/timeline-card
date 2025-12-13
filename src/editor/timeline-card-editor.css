@@ -269,7 +269,7 @@
 }
 
 .tc-icon-button ha-icon {
-  /* Keine Farbe setzen – Theme übernimmt alles */
+  /* Do not set a color; the theme handles it */
 }
 
 .tc-map-editor {

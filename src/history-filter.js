@@ -8,7 +8,7 @@ function collapseDuplicates(list, entities, globalConfig) {
   for (const item of list) {
     const cfg = entities.find((e) => e.entity === item.id) || {};
 
-    // Entity → YAML → fallback auf global
+    // Entity → YAML → fallback to global
     const collapse =
       cfg.collapse_duplicates ?? globalConfig.collapse_duplicates ?? false;
 
