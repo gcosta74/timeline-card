@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.5.1
+- Resolved a CustomElementRegistry conflict with the LLM Vision Card by
+  renaming the internal editor element to a unique identifier.
+  This prevents the Timeline Card from failing to load when both cards
+  are installed.
+
 ## v1.5.0
 - fixed z-state: the dots of the TimelineCard are no longer displayed above other cards/windows
 - Added a card-level `show_date` option (YAML + UI) to hide the date portion and display time only on event tiles.

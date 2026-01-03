@@ -212,4 +212,4 @@ class TimelineCardEditor extends LitElement {
   }
 }
 
-customElements.define("timeline-card-editor", TimelineCardEditor);
+customElements.define("weedpump-timeline-card-editor", TimelineCardEditor);

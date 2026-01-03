@@ -30,7 +30,7 @@ const translations = {
 class TimelineCard extends HTMLElement {
 
   static getConfigElement() {
-    return document.createElement("timeline-card-editor");
+    return document.createElement("weedpump-timeline-card-editor");
   }
 
   static getStubConfig(hass, entities) {
