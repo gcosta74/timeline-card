@@ -373,6 +373,7 @@ Available translations:
 - German
 - French
 - Brazilian Portuguese
+- Swedish
 
 ---
 
